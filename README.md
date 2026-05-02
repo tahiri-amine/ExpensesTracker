@@ -1,4 +1,4 @@
-# Expense Tracker
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/998583bc-f8cf-4e87-83bb-1c09c3b58c7f" /># Expense Tracker
 a simple python program that track your expenses .
 ## usage:
 ```
@@ -20,7 +20,9 @@ py main.py delete 3
 - **summary** - give u a small summary about your expense status
 - **delete** - delete an expense by its id
 ## Project Structure
+```
 ExpenseTracker/
 ├── main.py
 ├── tracker.py
 └── README.md
+```
