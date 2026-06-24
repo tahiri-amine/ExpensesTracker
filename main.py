@@ -1,38 +1,37 @@
-import sys
+import argparse
 from tracker import ExpenseTracker  
-data = sys.argv
-#py main.py add --amount 50 --category food --note "lunch"
-usage = """
-py main.py add --amount 50 --category food --note "lunch"
-py main.py list
-py main.py summary
-py main.py delete --id 3
-"""
-e = ExpenseTracker()
-if data[1] =="add":
-    if len(data) < 4:#because i have 3 argument + the path that sys return
-        print("NotEnoughtArgumentError:the mode add expect 3 argument ")
-        print(usage)
-        sys.exit()
-    try:
-        e.add(float(data[2]),data[3],data[4])
-    except ValueError as e:
-        print(e)
-        print("--amount must be int or float!")
-elif data[1] == "list":
-    e.list()
-elif data[1] == "summary":
-    e.summary()
-elif data[1] == "delete":
-    if len(data) < 3:# one for the path that already in sys list and one for the id
-        print("NotEnoughtArgumentError:the mode add expect 1 argument (id)")
-        sys.exit()
-    try:
-        e.delete(int(data[2]))
-    except ValueError:
-        print("id must be a number")
-else:
-    print("ModeError:the",data[1],"isn't a mode the modes are:")
-    print("add\ndummary\nlist\ndelete")
-    sys.exit()
+parser = argparse.ArgumentParser(description="Expenss tracker")
+sub_parser = parser.add_subparsers(dest="command")
+add = sub_parser.add_parser("add")
+add.add_argument("-a",help="-a : amount like 2DH or 50DH",type= float,required=True)
+add.add_argument("-cat",help="-cat: category like food drinks transport etc...",required=True)
+add.add_argument("-nt",help="-nt: a note like if the -cat was food than note could be vegitables",default="no note")
+sub_parser.add_parser("list")
+sub_parser.add_parser("summary")
+delete = sub_parser.add_parser("delete")
+delete.add_argument("-id",help="the id of the catergory is a number integre like 1,2,3...",type=int)
+delete.add_argument("-all",action="store_true")
+modify = sub_parser.add_parser("modify")
+modify.add_argument("-id",required=True,type=int,help="id is an integer like 1,2,3,4,....")
+modify.add_argument("-cat",required=True,help="-cat:category like food transport ect...")
+args = parser.parse_args()
+obj = ExpenseTracker()
+if args.command =="add":
+    obj.add(args.a,args.cat,args.nt)
+elif args.command == "list":
+    obj.list()
+elif args.command == "summary":
+    obj.summary()
+elif args.command =="modify":
+    obj.modify_category(args.id,args.cat)
+elif args.command == "delete":
+    if args.all:
+        obj.expenses = []
+        obj.save()
+    elif not args.id:
+        print("you have to enter the flag -id fllowing by an id or to enter the flag --all")
+    else:
+        obj.delete(args.id)
+
+
 
