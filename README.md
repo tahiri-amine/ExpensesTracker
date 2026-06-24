@@ -2,23 +2,26 @@
 a simple python program that track your expenses .
 ## usage:
 ```
-py main.py add   amount  category  note
-py main.py list
-py main.py summary
-py main.py delete  id
+python main.py add   -a <amount> -cat <category>  -nt <note>
+python main.py list
+python main.py summary
+python main.py delete  -id <id>
+python main.py modify -id <id> -cat <category>
 ```
 ## example
 ```
-py main.py add 50 food lunch
-py main.py list
-py main.py summary 
-py main.py delete 3
+python main.py add -a 50 -cat food -nt lunch
+python main.py list
+python main.py summary 
+python main.py delete -id 3 or python main.py delete -all
+python main.py modify -id 2 -cat food
 ```
 ## command
 - **add** - add expense to the json file 
 - **list** - list all the expense
 - **summary** - give u a small summary about your expense status
-- **delete** - delete an expense by its id
+- **delete** - delete an expense by its id or delete all the expense
+- **modify** - modify the category name 
 ## Project Structure
 ```
 ExpenseTracker/
