@@ -5,16 +5,19 @@ import json
 class ExpenseTracker:
     def __init__(self):
         self.expenses = self.load()  # load JSON into memory once
-    
+    #because self.load() return a list
     def load(self):
         # read data.json and return the list
-        with open("data.json","r") as f:
-            return json.load(f)
+        try:
+            with open("data.json","r",encoding="utf-8") as f:
+                return json.load(f)
+        except(FileNotFoundError,json.JSONDecodeError):
+            return []
     
-    def save(self):
+    def save(self): 
         # write self.expenses to data.json
-        with open("data.json","w") as f:
-            json.dump(self.expenses,f)
+        with open("data.json","w",encoding="utf-8") as f:
+            json.dump(self.expenses,f,indent=4)
     
     def add(self, amount, category, note):
         # create a dict, append to self.expenses, call save
@@ -24,7 +27,7 @@ class ExpenseTracker:
         dictionary["amount"] = amount
         dictionary["category"] = category
         dictionary["note"] = note
-        dictionary ["day"] = datetime.today().strftime( "%Y-%m-%d")
+        dictionary["day"] = datetime.today().strftime( "%Y-%m-%d")
         self.expenses.append(dictionary)
         self.save()
     def list(self):
@@ -38,8 +41,6 @@ class ExpenseTracker:
         if not self.expenses:
             print("you have no expenses yet ( ✜︵✜ )")
             return
-    
-        #do i have to add an esle in here? because if the list is empty the pg create a dic and the varibale totale 
         dictionary ={}
         totale = 0
         for expens in self.expenses:
@@ -54,7 +55,8 @@ class ExpenseTracker:
             print(element,dictionary[element],"DH")
     def delete(self,id):
         if not self.expenses:
-            return True
+            print("you have no expenss yet try to add some expenss :)")
+            return 
         
         before = len(self.expenses)
         self.expenses = [dic for dic in self.expenses if  dic["id"] != id]
@@ -63,6 +65,22 @@ class ExpenseTracker:
         self.save()
         if len(self.expenses) == before:
             print("no expense found with this id")
+    def modify_category(self,id,new_category):
+        if not self.expenses:
+            print("your already have no expenss to modifie ( ✜︵✜ ) ")
+        else:
+            is_id = False
+            for expense in self.expenses:
+                if expense["id"] == id:
+                        expense["category"] = new_category
+                        is_id = True
+            if not is_id:
+                print("the giving id is not found")
+            else:
+                self.save()
+        
+
+
         
         
        
