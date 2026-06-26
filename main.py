@@ -13,7 +13,8 @@ delete.add_argument("-id",help="the id of the catergory is a number integre like
 delete.add_argument("-all",action="store_true")
 modify = sub_parser.add_parser("modify")
 modify.add_argument("-id",required=True,type=int,help="id is an integer like 1,2,3,4,....")
-modify.add_argument("-cat",required=True,help="-cat:category like food transport ect...")
+modify.add_argument("-cat",help="-cat:category like food transport ect...")
+modify.add_argument("-nt",help="nt: stand for notes")
 args = parser.parse_args()
 obj = ExpenseTracker()
 if args.command =="add":
@@ -23,7 +24,10 @@ elif args.command == "list":
 elif args.command == "summary":
     obj.summary()
 elif args.command =="modify":
-    obj.modify_category(args.id,args.cat)
+    if args.cat or args.nt:
+            obj.modify_category(args.id,args.cat,args.nt)
+    elif  not args.nt and not args.cat:
+        print("provid at lest -cat or -nt")
 elif args.command == "delete":
     if args.all:
         obj.expenses = []
@@ -32,6 +36,3 @@ elif args.command == "delete":
         print("you have to enter the flag -id fllowing by an id or to enter the flag --all")
     else:
         obj.delete(args.id)
-
-
-
