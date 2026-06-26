@@ -36,7 +36,7 @@ class ExpenseTracker:
         else:
             print("your expenses are :")
             for expens in self.expenses:
-                print(expens)
+                print(f"[{expens["id"]:<3}]: {expens["amount"]:<5.1f}DH | {expens["category"]:<12} | {expens["note"]:<12} | {expens["day"]}")
     def summary(self):
         if not self.expenses:
             print("you have no expenses yet ( ✜︵✜ )")
@@ -65,22 +65,23 @@ class ExpenseTracker:
         self.save()
         if len(self.expenses) == before:
             print("no expense found with this id")
-    def modify_category(self,id,new_category):
+    def modify_category(self,id,new_category=None,new_note=None):
         if not self.expenses:
             print("your already have no expenss to modifie ( ✜︵✜ ) ")
         else:
             is_id = False
             for expense in self.expenses:
                 if expense["id"] == id:
-                        expense["category"] = new_category
-                        is_id = True
+                        if new_category:
+                            expense["category"] = new_category
+                            is_id = True
+                        if new_note:
+                            expense["note"] = new_note
+                            is_id = True
             if not is_id:
                 print("the giving id is not found")
             else:
                 self.save()
-        
-
-
         
         
        
