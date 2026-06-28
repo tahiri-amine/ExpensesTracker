@@ -1,87 +1,78 @@
 #i have to create 4 function
 from datetime import datetime
-import json
+import sqlite3
+
 #build a class called Expenstracker 
 class ExpenseTracker:
     def __init__(self):
-        self.expenses = self.load()  # load JSON into memory once
-    #because self.load() return a list
-    def load(self):
-        # read data.json and return the list
-        try:
-            with open("data.json","r",encoding="utf-8") as f:
-                return json.load(f)
-        except(FileNotFoundError,json.JSONDecodeError):
-            return []
-    
-    def save(self): 
-        # write self.expenses to data.json
-        with open("data.json","w",encoding="utf-8") as f:
-            json.dump(self.expenses,f,indent=4)
-    
+        self.conn = sqlite3.connect("data.db")
+        self.cursor = self.conn.cursor()
+        self.table = self.cursor.execute("create table if not exists data(id integer primary key,amount integer,category text,note text,date text) ")
+
+
     def add(self, amount, category, note):
-        # create a dict, append to self.expenses, call save
-        
-        dictionary = {}
-        dictionary["id"] = len(self.expenses)+1
-        dictionary["amount"] = amount
-        dictionary["category"] = category
-        dictionary["note"] = note
-        dictionary["day"] = datetime.today().strftime( "%Y-%m-%d")
-        self.expenses.append(dictionary)
-        self.save()
+        date =  datetime.today().strftime( "%Y-%m-%d")
+        self.cursor.execute("insert into data(amount,category,note,date) values (?,?,?,?)",(amount,category,note,date))
+        self.conn.commit()
     def list(self):
-        if not self.expenses:
-            print("you have no expenses yet ( ✜︵✜ )")
+        self.cursor.execute("select * from data")
+        data = self.cursor.fetchall() #{(id,category,note,date),(id,catergory....)}
+        if data:
+            for tuple_ in data:
+                if tuple:
+                    print(f"[{tuple_[0]:<3}]: {tuple_[1]:<5.1f}DH | {tuple_[2]:<12} | {tuple_[3]:<12} | {tuple_[4]}")
         else:
-            print("your expenses are :")
-            for expens in self.expenses:
-                print(f"[{expens["id"]:<3}]: {expens["amount"]:<5.1f}DH | {expens["category"]:<12} | {expens["note"]:<12} | {expens["day"]}")
+             print("you have no expenses yet ( ✜︵✜ )")
     def summary(self):
-        if not self.expenses:
-            print("you have no expenses yet ( ✜︵✜ )")
+        self.cursor.execute("select sum(amount) from data")
+        amount_data = self.cursor.fetchall()#[(toatale,)]
+        totale = amount_data[0][0]
+        if totale == None:
+            print("you have no expenses yet to summary( ✜︵✜ )")
             return
-        dictionary ={}
-        totale = 0
-        for expens in self.expenses:
-            totale += expens["amount"]
-            cat = expens["category"]
-            if cat in dictionary:
-                dictionary[cat] += expens["amount"]
-            else:
-                dictionary[cat] = expens["amount"]
+        self.cursor.execute("select category,sum(amount) from data group by category")#same need a hangling here
+        data = self.cursor.fetchall()#[(cat,amount),(cat,amount),...]
         print("Totale spent:",totale)
-        for element in dictionary:
-            print(element,dictionary[element],"DH")
+        for element in data:
+            print(element[0],element[1],"DH")
     def delete(self,id):
-        if not self.expenses:
-            print("you have no expenss yet try to add some expenss :)")
-            return 
-        
-        before = len(self.expenses)
-        self.expenses = [dic for dic in self.expenses if  dic["id"] != id]
-        for index, expens in enumerate(self.expenses):
-            expens["id"] = index + 1
-        self.save()
-        if len(self.expenses) == before:
-            print("no expense found with this id")
+        #if id does not exist do not stay silent
+        rows_number = self.count_rows()
+        if rows_number == 0:
+            print("you have no expenses yet ! there is nothing to delete ( ✜︵✜ )")
+            return
+        self.cursor.execute("delete from data where id  = ? ",(id,))
+        self.conn.commit()
+        if rows_number == self.count_rows():
+            print(f"the id [{id}] not found ! there is no expense with the id: [{id}]")
     def modify_category(self,id,new_category=None,new_note=None):
-        if not self.expenses:
-            print("your already have no expenss to modifie ( ✜︵✜ ) ")
-        else:
-            is_id = False
-            for expense in self.expenses:
-                if expense["id"] == id:
-                        if new_category:
-                            expense["category"] = new_category
-                            is_id = True
-                        if new_note:
-                            expense["note"] = new_note
-                            is_id = True
-            if not is_id:
-                print("the giving id is not found")
-            else:
-                self.save()
+        #handle the case where the giving id is not found
+        
+        if new_category:
+            self.cursor.execute("update data  set category = ? where id = ? ",(new_category,id))
+            self.conn.commit()
+            if self.cursor.rowcount == 0:
+                print(f"the id: [{id}] is not found !")
+                return
+        if new_note:
+            self.cursor.execute("update  data set note = ? where id = ?",(new_note,id))
+            self.conn.commit()
+            if self.cursor.rowcount == 0:
+                print(f"the id: [{id}] is not found !")
+                return
+        if not new_category and not new_note:
+            print("you have no expenses yet to modify")
+       
+    def delete_all(self):
+        self.cursor.execute("delete from data")
+        self.conn.commit()
+    def count_rows(self):
+        self.cursor.execute("select count(*) from data")
+        count = self.cursor.fetchall()#[(count,)]
+        return count[0][0]
+    
+
+
         
         
        
