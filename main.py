@@ -30,9 +30,11 @@ elif args.command =="modify":
         print("provid at lest -cat or -nt")
 elif args.command == "delete":
     if args.all:
-        obj.expenses = []
-        obj.save()
+        obj.delete_all()
     elif not args.id:
         print("you have to enter the flag -id fllowing by an id or to enter the flag --all")
     else:
         obj.delete(args.id)
+
+
+
